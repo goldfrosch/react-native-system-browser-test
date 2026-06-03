@@ -8,9 +8,15 @@ dependencies:
   expo:
     specifier: ~56.0.8
     version: 56.0.8(@babel/core@7.29.7)(@expo/dom-webview@56.0.5)(react-native-webview@13.16.1)(react-native@0.85.3)(react@19.2.3)(typescript@6.0.3)
+  expo-constants:
+    specifier: ~56.0.16
+    version: 56.0.16(expo@56.0.8)(react-native@0.85.3)
   expo-status-bar:
     specifier: ~56.0.4
     version: 56.0.4(expo@56.0.8)(react-native@0.85.3)(react@19.2.3)
+  expo-web-browser:
+    specifier: ~56.0.5
+    version: 56.0.5(expo@56.0.8)(react-native@0.85.3)
   react:
     specifier: 19.2.3
     version: 19.2.3
@@ -2231,6 +2237,16 @@ packages:
     dependencies:
       expo: 56.0.8(@babel/core@7.29.7)(@expo/dom-webview@56.0.5)(react-native-webview@13.16.1)(react-native@0.85.3)(react@19.2.3)(typescript@6.0.3)
       react: 19.2.3
+      react-native: 0.85.3(@babel/core@7.29.7)(@types/react@19.2.16)(react@19.2.3)
+    dev: false
+
+  /expo-web-browser@56.0.5(expo@56.0.8)(react-native@0.85.3):
+    resolution: {integrity: sha512-kaN+wcR5lHwPCH1IgrU1XyPUQvBRzdF1TMp65uAF9iUCyipqYnmrvV87eqAmrdkFFopWVgU7FcxPu1UZw+gvUQ==}
+    peerDependencies:
+      expo: '*'
+      react-native: '*'
+    dependencies:
+      expo: 56.0.8(@babel/core@7.29.7)(@expo/dom-webview@56.0.5)(react-native-webview@13.16.1)(react-native@0.85.3)(react@19.2.3)(typescript@6.0.3)
       react-native: 0.85.3(@babel/core@7.29.7)(@types/react@19.2.16)(react@19.2.3)
     dev: false
 
