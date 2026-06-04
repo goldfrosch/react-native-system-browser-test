@@ -1,3 +1,5 @@
+import { useEffect, useCallback } from "react";
+
 const SCHEME = "systembrowsertest";
 
 function App() {
@@ -8,24 +10,10 @@ function App() {
     "inBrowser"
   );
 
-  // 메인 WebView: RN 브릿지로 시스템 브라우저 오픈 요청
-  const handleOpen = () => {
-    if (window.ReactNativeWebView) {
-      window.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          type: "OPEN_SYSTEM_BROWSER",
-          url: window.location.href,
-        })
-      );
-    } else {
-      alert("이 화면은 네이티브 앱의 WebView 안에서 실행되어야 합니다.");
-    }
-  };
-
   // 시스템 브라우저: 브릿지가 없으므로 딥링크 리다이렉트로 네이티브에 전달.
   // 네이티브의 openAuthSessionAsync가 이 scheme 리다이렉트를 감지해
   // 브라우저를 자동으로 닫고 URL을 돌려받습니다.
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     const message = "시스템 브라우저에서 보낸 메시지입니다";
     const data = {
       timestamp: Date.now(),
@@ -39,7 +27,62 @@ function App() {
     });
 
     window.location.href = `${SCHEME}://close?${params.toString()}`;
-  };
+  }, []);
+
+  // 메인 WebView: RN 브릿지로 시스템 브라우저 오픈 요청
+  const handleOpen = useCallback(() => {
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "OPEN_SYSTEM_BROWSER",
+          url: window.location.href,
+        })
+      );
+    } else {
+      alert("이 화면은 네이티브 앱의 WebView 안에서 실행되어야 합니다.");
+    }
+  }, []);
+
+  // window.open / window.close 오버라이드
+  // WebView 내에서 window.open → 시스템 브라우저 열기
+  // 시스템 브라우저 내에서 window.close → 딥링크 리다이렉트로 닫기
+  useEffect(() => {
+    if (isInBrowser) {
+      // 시스템 브라우저 모드: window.close를 handleClose로 연결
+      const originalClose = window.close;
+      window.close = () => {
+        handleClose();
+      };
+      return () => {
+        window.close = originalClose;
+      };
+    } else {
+      // WebView 모드: window.open을 시스템 브라우저 열기로 연결
+      const originalOpen = window.open;
+      window.open = (url?: string | URL | null) => {
+        const targetUrl = url instanceof URL ? url.href : url ?? window.location.href;
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(
+            JSON.stringify({
+              type: "OPEN_SYSTEM_BROWSER",
+              url: targetUrl,
+            })
+          );
+        }
+        return null;
+      };
+      return () => {
+        window.open = originalOpen;
+      };
+    }
+  }, [isInBrowser, handleClose]);
+
+  // 시스템 브라우저 모드: 마운트 시 즉시 닫기 + 데이터 전송
+  useEffect(() => {
+    if (isInBrowser) {
+      handleClose();
+    }
+  }, [isInBrowser, handleClose]);
 
   return (
     <div
